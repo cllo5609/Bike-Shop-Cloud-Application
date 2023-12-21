@@ -1,0 +1,3528 @@
+{
+	"info": {
+		"_postman_id": "3bc8aa2e-fb0b-4d58-a7f3-5938c15265df",
+		"name": "Portfolio-Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26856748"
+	},
+	"item": [
+		{
+			"name": "Get All Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete A User (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"405 status code\", function () {",
+							"    //Check for 405 status code",
+							"    pm.response.to.have.status(405);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check if the response content is valid and matches the expected values",
+							"   pm.expect(pm.response.json()[\"manufacturer\"]).to.eq(\"Cannondale\");",
+							"   pm.expect(pm.response.json()[\"type\"]).to.eq(\"mountain\");",
+							"   pm.expect(pm.response.json()[\"model_year\"]).to.eq(2020);",
+							"   pm.expect(pm.response.json()[\"bike_size\"]).to.equal(\"large\");",
+							"   //Check if the self url is correct",
+							"   const self_url = pm.environment.get(\"app_url\") + \"/bikes/\" + pm.response.json()[\"id\"];",
+							"   pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Cannondale\",\n    \"type\": \"mountain\",\n    \"model_year\": 2020,\n    \"bike_size\": \"large\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike With Missing Attribute (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {",
+							"    //Check for 400 status code",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"400 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"The request object is missing at least one of the required attributes\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"type\": \"mountain\",\n    \"model_year\": 2020,\n    \"bike_size\": \"large\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike Without Renting First (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"401 status code\", function () {",
+							"    //Check for 401 status code",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"401 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"You must rent this bike before making any requests\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike To A User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 204 status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify A Bike (PUT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Cannondale\",\n    \"type\": \"mountain\",\n    \"model_year\": 2020,\n    \"bike_size\": \"small\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify A Bike (PATCH)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"model_year\": 2023\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike After Modifying",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check if the response content is valid and matches the expected values",
+							"   pm.expect(pm.response.json()[\"manufacturer\"]).to.eq(\"Cannondale\");",
+							"   pm.expect(pm.response.json()[\"type\"]).to.eq(\"mountain\");",
+							"   pm.expect(pm.response.json()[\"model_year\"]).to.eq(2023);",
+							"   pm.expect(pm.response.json()[\"bike_size\"]).to.equal(\"small\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Component",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"component_id\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"SRAM\",\n    \"description\": \"shifter\",\n    \"condition\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Component",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/components/{{component_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components",
+						"{{component_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify A Component (PUT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"SRAM\",\n    \"description\": \"tires\",\n    \"condition\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components/{{component_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components",
+						"{{component_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify A Component (PATCH)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"condition\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components/{{component_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components",
+						"{{component_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Bike Before Adding Component",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"bike specs equal 0\", function () {",
+							"    //Check that bike specs is empty",
+							"    pm.expect(pm.response.json()[\"specs\"].length).to.eq(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Component To A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Component After Modifying",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check if the response content is valid and matches the expected values",
+							"   pm.expect(pm.response.json()[\"condition\"]).to.eq(1);",
+							"   pm.expect(pm.response.json()[\"description\"]).to.eq(\"tires\");",
+							"   pm.expect(pm.response.json()[\"manufacturer\"]).to.eq(\"SRAM\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/components/{{component_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components",
+						"{{component_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike User2 (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", function () {",
+							"    //Check for 403 status code",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"403 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"You cannot view a bike that you aren't renting\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify A Bike User2 (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", function () {",
+							"    //Check for 403 status code",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"403 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"You cannot modify a bike that you aren't renting\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Cannondale\",\n    \"type\": \"mountain\",\n    \"model_year\": 2020,\n    \"bike_size\": \"small\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify A Bike User2 (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", function () {",
+							"    //Check for 403 status code",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"403 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"You cannot modify a bike that you aren't renting\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"model_year\": 2023\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete A Bike User2 (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", function () {",
+							"    //Check for 403 status code",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"403 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"You cannot remove a bike that you aren't renting\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike (invalid jwt)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"401 status code\", function () {",
+							"    //Check for 401 status code",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"401 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"Invalid header. Use an RS256 signed JWT Access Token\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{invalid_jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike (invalid missing jwt)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"401 status code\", function () {",
+							"    //Check for 401 status code",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"401 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"Authorization header is missing\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Bike After Adding Component",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"bike specs equal 1\", function () {",
+							"    //Check that bike specs is empty",
+							"    pm.expect(pm.response.json()[\"specs\"].length).to.eq(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove A Component From A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Bike After Removing Comonent",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"bike specs equal 0\", function () {",
+							"    //Check that bike specs is empty",
+							"    pm.expect(pm.response.json()[\"specs\"].length).to.eq(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Return Bike From A User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A User Before Renting Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"user rental equals 0\", function () {",
+							"    //Check that bike specs is empty",
+							"    pm.expect(pm.response.json()[\"rental\"].length).to.eq(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike To User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A User After Renting Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"user rental equals 1\", function () {",
+							"    //Check that bike specs equals 1",
+							"    pm.expect(pm.response.json()[\"rental\"].length).to.eq(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike After Renting To User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Return Bike From Invalid User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"401 status code\", function () {",
+							"    //Check for 401 status code",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"401 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"You cannot return a bike that is rented to another user\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Return Bike From User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A User After Returning Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"user rental equals 0\", function () {",
+							"    //Check that bike specs is empty",
+							"    pm.expect(pm.response.json()[\"rental\"].length).to.eq(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike (Invalid Accept)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"406 status code\", function () {",
+							"    //Check for 406 status code",
+							"    pm.response.to.have.status(406);",
+							"});",
+							"",
+							"pm.test(\"406 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"The chosen media type is not supported for this request\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "text/html",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Cannondale\",\n    \"type\": \"mountain\",\n    \"model_year\": 2020,\n    \"bike_size\": \"large\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike (Invalid Media Type)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", function () {",
+							"    //Check for 415 status code",
+							"    pm.response.to.have.status(415);",
+							"});",
+							"",
+							"pm.test(\"415 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"Content type for this request must be application/json\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Cannondale\",\n    \"type\": \"mountain\",\n    \"model_year\": 2020,\n    \"bike_size\": \"large\"\n}",
+					"options": {
+						"raw": {
+							"language": "html"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check if the response content is valid and matches the expected values",
+							"   pm.expect(pm.response.json()[\"manufacturer\"]).to.eq(\"Specialized\");",
+							"   pm.expect(pm.response.json()[\"type\"]).to.eq(\"mountain\");",
+							"   pm.expect(pm.response.json()[\"model_year\"]).to.eq(2023);",
+							"   pm.expect(pm.response.json()[\"bike_size\"]).to.equal(\"medium\");",
+							"   //Check if the self url is correct",
+							"   const self_url = pm.environment.get(\"app_url\") + \"/bikes/\" + pm.response.json()[\"id\"];",
+							"   pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Specialized\",\n    \"type\": \"mountain\",\n    \"model_year\": 2023,\n    \"bike_size\": \"medium\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Component 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"component_id2\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"SRAM\",\n    \"description\": \"shifter\",\n    \"condition\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Component2 To A Bike Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Component 3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"component_id3\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Shimano\",\n    \"description\": \"cog\",\n    \"condition\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Component3 To A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id3}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Component 4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"component_id4\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Maxxis\",\n    \"description\": \"tires\",\n    \"condition\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Component4 To A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id4}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id4}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Component 5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"component_id5\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Crank Brothers\",\n    \"description\": \"pedals\",\n    \"condition\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Component5 To A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id5}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id5}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Component 6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"component_id6\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Industry Nine\",\n    \"description\": \"wheel set\",\n    \"condition\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Component6 To A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components/{{component_id6}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components",
+						"{{component_id6}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Components",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users Before Rentals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike To User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete A Component",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/components/{{component_id6}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components",
+						"{{component_id6}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Components After One Deleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Bike User2 After Component6 Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike2 User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id2\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"GT\",\n    \"type\": \"cruiser\",\n    \"model_year\": 2020,\n    \"bike_size\": \"large\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike2 To User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 204 status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike3 User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id3\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Yeti\",\n    \"type\": \"mountain\",\n    \"model_year\": 2024,\n    \"bike_size\": \"large\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike3 To User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 204 status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id3}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike4 User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id4\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"EVIL\",\n    \"type\": \"mountain\",\n    \"model_year\": 2024,\n    \"bike_size\": \"small\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike4 To User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 204 status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id4}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id4}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike5 User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id5\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Pivot\",\n    \"type\": \"road\",\n    \"model_year\": 2019,\n    \"bike_size\": \"medium\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike5 To User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 204 status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id5}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id5}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create A Bike6 User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"201 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.environment.set(\"bike_id6\", pm.response.json()[\"id\"]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"manufacturer\": \"Huffy\",\n    \"type\": \"bmx\",\n    \"model_year\": 2021,\n    \"bike_size\": \"x-large\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rent Bike6 To User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 204 status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id6}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id6}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Attempt To Rent Already Rented Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", function () {",
+							"    //Check for appropriate 403 status code",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"403 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"description\"]).to.eq(\"This bike is currently rented out\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}/bikes/{{bike_id6}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}",
+						"bikes",
+						"{{bike_id6}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Bikes User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Bikes User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Components On A Bike",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id}}/components",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id}}",
+						"components"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users After Rentals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Bike6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id6}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id6}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Bike5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id5}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id5}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Bike4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id4}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id4}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Bike3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id3}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Bike2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes/{{bike_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes",
+						"{{bike_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Bikes User2 After Deletes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 200 response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/bikes",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"bikes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users After Bike Deletes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Return Bike From User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for success 204 response code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}/bikes/{{bike_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}",
+						"bikes",
+						"{{bike_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users After Bike Returned",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"   //Check for appropriate 200 status code",
+							"   pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Everything",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/delete",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"delete"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

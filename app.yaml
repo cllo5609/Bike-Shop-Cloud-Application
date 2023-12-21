@@ -1,0 +1,14 @@
+# Author    : Clinton Lohr
+# Date      : 05/30/2023
+# Course    : CS 493 - Cloud Application Development
+# Assignment: Portfolio - Final Project
+
+
+runtime: python39
+
+handlers:
+  # This handler routes all requests not caught above to your main app. It is
+  # required when static routes are defined, but can be omitted (along with
+  # the entire handlers section) when there are no static files defined.
+- url: /.*
+  script: auto

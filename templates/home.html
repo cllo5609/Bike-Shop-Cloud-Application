@@ -1,0 +1,33 @@
+<!--
+    Author    : Clinton Lohr
+    Date      : 05/30/2023
+    Course    : CS 493 - Cloud Application Development
+    Assignment: Portfolio - Final Project
+-->
+
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Clint Auth0</title>
+  </head>
+  <body>
+    {% if session %}
+        <h1>User Information for {{session.userinfo.name}}!</h1>
+        <h3>Use the 'logout' link below to log out of <br>
+            your Auth0 account.</h3>
+        <p><a href="/logout">Logout of Auth0</a></p>
+        <div><pre>
+            <b>Access Token:</b> {{session.access_token}}<br>
+            <b>ID Token:    </b> {{session.id_token}}<br>
+            <b>Sub:</b>          {{session.userinfo.sub}}
+        </pre></div>
+
+    {% else %}
+        <h1>Welcome Guest!</h1>
+        <h3>Use the link below to create or login<br>
+            to an Auth0 account.</h3>
+        <p><a href="/login">Login/Create Auth0 Account</a></p>
+    {% endif %}
+  </body>
+</html>
