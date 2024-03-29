@@ -3,7 +3,7 @@
 A REST API for a bike shop rental service. This service allows users to create an account, rent bicycles and equip their rental bikes with components that fit their needs. This application is deployed using Google App Engine and data is stored using Google Datastore. 
 
 ## Data Model
-This application styores three types of entities in Datastore. Users, Bikes and Components.
+This application stores three types of entities in Datastore. Users, Bikes and Components.
 For a full description of entity properties, see [api-spec.pdf](https://github.com/cllo5609/Bike-Shop-Cloud-Application/blob/main/api-spec.pdf)
 
 ### Users
